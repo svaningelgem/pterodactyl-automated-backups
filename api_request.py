@@ -116,7 +116,7 @@ def request(
     When fetch_all_pages=True, automatically fetches all paginated data.
     """
     method = method.upper()
-    request_id = f"{method}:{url[-30:]}"
+    request_id = f"{method}:{url}"
     logger.debug(f"[{request_id}] Making {method} request")
 
     if method == "GET" and not data:
