@@ -290,7 +290,7 @@ if __name__ == "__main__":
 
     try:
         server_list = request(
-            f"{CLIENT_API_URL}/servers", data={"per_page": 100, "type": "admin"}
+            CLIENT_API_URL, data={"per_page": 100, "type": "admin"}
         )
         server_count = len(server_list.get("data", []))
         logger.info(f"Retrieved {server_count} servers")
