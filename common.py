@@ -95,8 +95,7 @@ logger.info(f"Initializing with log level: {LOG_LEVEL}")
 start_time = time.time()
 
 _check_required("API_KEY")
-_check_required("GET_URL")
-_check_required("SERVERS_URL")
+_check_required("CLIENT_API_URL")
 
 if SEND_EMAILS:
     logger.info("Email notifications enabled, checking email configuration")

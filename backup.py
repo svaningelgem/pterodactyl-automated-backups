@@ -8,7 +8,7 @@ from logprise import logger
 import requests
 
 from api_request import request
-from config import GET_URL, POST_BACKUP_SCRIPT, ROTATE, SERVERS_URL
+from config import CLIENT_API_URL, POST_BACKUP_SCRIPT, ROTATE
 
 CACHE_DIR = (
     Path.home() / ".cache" / "pterodactyl-automated-backups" / "server_last_backup"
@@ -73,7 +73,7 @@ def cleanup_orphaned_timestamps(active_server_ids: set[str]) -> None:
 def is_server_online(server_id: str) -> bool:
     """Check if server is online."""
     try:
-        url = f"{SERVERS_URL}{server_id}/resources"
+        url = f"{CLIENT_API_URL}/servers/{server_id}/resources"
         response = request(url)
         current_state = response["attributes"]["current_state"]
 
@@ -115,7 +115,7 @@ def remove_old_backup(server: Dict[str, Any]) -> None:
         return
 
     try:
-        url = f"{SERVERS_URL}{server_id}/backups"
+        url = f"{CLIENT_API_URL}/servers/{server_id}/backups"
         response = request(url)
         backups = sorted(response["data"], key=lambda b: b["attributes"]["created_at"])
         backup_count = len(backups)
@@ -143,7 +143,7 @@ def remove_old_backup(server: Dict[str, Any]) -> None:
             backup_name = backup["attributes"]["name"]
             backup_uuid = backup["attributes"]["uuid"]
 
-            url = f"{SERVERS_URL}{server_id}/backups/{backup_uuid}"
+            url = f"{CLIENT_API_URL}/servers/{server_id}/backups/{backup_uuid}"
             logger.info(f"[{server_id}] Removing backup: '{backup_name}'")
 
             request(url, method="DELETE")
@@ -162,7 +162,7 @@ def remove_old_backup(server: Dict[str, Any]) -> None:
 
 def create_backup(server_id: str) -> Optional[str]:
     """Create backup and return UUID."""
-    url = f"{SERVERS_URL}{server_id}/backups"
+    url = f"{CLIENT_API_URL}/servers/{server_id}/backups"
     backup = request(url, method="POST", data={"per_page": 100})
     backup_uuid = backup["attributes"]["uuid"]
 
@@ -174,7 +174,7 @@ def wait_for_backup_completion(server_id: str, backup_uuid: str) -> None:
     """Wait for backup to complete and run post-backup script."""
     logger.info(f"[{server_id}] Waiting for backup completion...")
 
-    url = f"{SERVERS_URL}{server_id}/backups/{backup_uuid}"
+    url = f"{CLIENT_API_URL}/servers/{server_id}/backups/{backup_uuid}"
     wait_start = time.time()
     completion_checks = 0
 
@@ -289,7 +289,9 @@ if __name__ == "__main__":
     )
 
     try:
-        server_list = request(GET_URL, data={"per_page": 100, "type": "admin"})
+        server_list = request(
+            f"{CLIENT_API_URL}/servers", data={"per_page": 100, "type": "admin"}
+        )
         server_count = len(server_list.get("data", []))
         logger.info(f"Retrieved {server_count} servers")
 
