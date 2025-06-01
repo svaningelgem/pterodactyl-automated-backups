@@ -73,7 +73,7 @@ def cleanup_orphaned_timestamps(active_server_ids: set[str]) -> None:
 def is_server_online(server_id: str) -> bool:
     """Check if server is online."""
     try:
-        url = f"https://panel.example.com/api/client/servers/{server_id}/resources"
+        url = f"{SERVERS_URL}{server_id}/resources"
         response = request(url)
         current_state = response["attributes"]["current_state"]
 
